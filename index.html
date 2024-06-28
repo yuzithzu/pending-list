@@ -240,7 +240,7 @@
     }
 
     function exportToPDF() {
-        const doc = new jspdf.jsPDF();
+        const doc = new jspdf.jsPDF('landscape');
         
         // Define columns for the table
         const columns = ['Name', 'GL Expiration', 'Government Agency', 'Medicine', 'Brand Name', 'Quantity', 'Quantity Unit', 'Date Inputted', 'Remark'];
@@ -267,6 +267,17 @@
                 fontSize: 12,
                 fontStyle: 'normal',
                 overflow: 'linebreak',
+            },
+            columnStyles: {
+                0: { cellWidth: 'auto' },
+                1: { cellWidth: 'auto' },
+                2: { cellWidth: 'auto' },
+                3: { cellWidth: 'auto' },
+                4: { cellWidth: 'auto' },
+                5: { cellWidth: 'auto' },
+                6: { cellWidth: 'auto' },
+                7: { cellWidth: 'auto' },
+                8: { cellWidth: 'auto' },
             },
             margin: { top: 20 },
         });
