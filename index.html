@@ -1,16 +1,18 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Auto Reflect Table with Countdown</title>
+    <title>Medicine Information</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f9;
             margin: 0;
             padding: 20px;
-        }
-        h2, h3 {
             color: #333;
+        }
+        h2 {
+            color: #333;
+            text-align: center;
         }
         form, table, .buttons {
             background: white;
@@ -18,22 +20,21 @@
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             padding: 20px;
             margin-bottom: 20px;
+            max-width: 800px;
+            margin: auto;
         }
         table {
             width: 100%;
             border-collapse: collapse;
+            margin-top: 20px;
         }
         th, td {
             border: 1px solid #ddd;
-            padding: 12px;
+            padding: 8px;
             text-align: left;
         }
         th {
             background-color: #f2f2f2;
-        }
-        .expired {
-            background-color: red;
-            color: white;
         }
         .form-group {
             margin-bottom: 15px;
@@ -47,11 +48,12 @@
         input[type="date"],
         input[type="number"],
         select {
-            width: calc(100% - 24px);
-            padding: 10px;
+            width: calc(100% - 20px);
+            padding: 8px;
             margin-bottom: 10px;
             border: 1px solid #ccc;
             border-radius: 4px;
+            box-sizing: border-box;
         }
         button, input[type="button"] {
             background-color: #4CAF50;
@@ -69,6 +71,10 @@
         }
         .delete-btn:hover {
             background-color: #e53935;
+        }
+        .buttons {
+            display: flex;
+            justify-content: center;
         }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -96,13 +102,13 @@
             <option value="baclaran_redemptorist">Baclaran Redemptorist</option>
         </select>
     </div>
-    <h3>Medicines</h3>
-    <div id="medicineFields" class="form-group">
+    <div class="form-group">
         <label for="medicine">Medicine:</label>
         <input type="text" id="medicine" name="medicine">
+    </div>
+    <div class="form-group">
         <label for="quantity">Quantity:</label>
         <input type="number" id="quantity" name="quantity">
-        <button type="button" onclick="addMedicine()">Add Medicine</button>
     </div>
     <div class="form-group">
         <label for="remark">Remark:</label>
@@ -117,16 +123,20 @@
 
 <h2>Medicine Table</h2>
 <table id="medicineTable">
-    <tr>
-        <th>Name</th>
-        <th>GL Expiration</th>
-        <th>Government Agency</th>
-        <th>Medicines</th>
-        <th>Days Pending</th>
-        <th>Date Inputted</th>
-        <th>Remark</th>
-        <th>Action</th>
-    </tr>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>GL Expiration</th>
+            <th>Government Agency</th>
+            <th>Medicine</th>
+            <th>Quantity</th>
+            <th>Date Inputted</th>
+            <th>Remark</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
 </table>
 
 <script>
@@ -136,41 +146,12 @@
         loadTableData();
     });
 
-    function addMedicine() {
-        var medicine = document.getElementById("medicine").value;
-        var quantity = document.getElementById("quantity").value;
-
-        medicines.push({medicine: medicine, quantity: quantity});
-
-        document.getElementById("medicine").value = "";
-        document.getElementById("quantity").value = "";
-
-        displayMedicines();
-    }
-
-    function displayMedicines() {
-        let medicineList = document.getElementById("medicineFields");
-        let medicinesDiv = document.getElementById("medicinesList");
-
-        if (!medicinesDiv) {
-            medicinesDiv = document.createElement("div");
-            medicinesDiv.id = "medicinesList";
-            medicineList.appendChild(medicinesDiv);
-        }
-
-        medicinesDiv.innerHTML = "<h4>Added Medicines:</h4><ul>";
-
-        medicines.forEach(function(med) {
-            medicinesDiv.innerHTML += `<li>${med.medicine} - ${med.quantity}</li>`;
-        });
-
-        medicinesDiv.innerHTML += "</ul>";
-    }
-
     function addToTable() {
         var name = document.getElementById("name").value;
         var glExpiration = document.getElementById("glExpiration").value;
         var governmentAgency = document.getElementById("governmentAgency").value;
+        var medicine = document.getElementById("medicine").value;
+        var quantity = document.getElementById("quantity").value;
         var remark = document.getElementById("remark").value;
 
         let currentDate = new Date().toISOString().split('T')[0];
@@ -179,103 +160,96 @@
             name: name,
             glExpiration: glExpiration,
             governmentAgency: governmentAgency,
-            medicines: medicines,
+            medicine: medicine,
+            quantity: quantity,
             dateInputted: currentDate,
             remark: remark
         };
 
-        let data = localStorage.getItem("medicineData");
-        let medicineData = data ? JSON.parse(data) : [];
-        medicineData.push(entry);
-        localStorage.setItem("medicineData", JSON.stringify(medicineData));
+        medicines.push(entry);
+        saveToLocalStorage();
 
         appendRow(entry);
 
         document.getElementById("medicineForm").reset();
-        medicines = [];
-        displayMedicines();
     }
 
     function appendRow(entry) {
-        var table = document.getElementById("medicineTable");
-        var row = table.insertRow(-1);
+        var table = document.getElementById("medicineTable").getElementsByTagName('tbody')[0];
+        var newRow = table.insertRow(table.rows.length);
 
-        var cell1 = row.insertCell(0);
-        var cell2 = row.insertCell(1);
-        var cell3 = row.insertCell(2);
-        var cell4 = row.insertCell(3);
-        var cell5 = row.insertCell(4);
-        var cell6 = row.insertCell(5);
-        var cell7 = row.insertCell(6);
-        var cell8 = row.insertCell(7);
+        var cell1 = newRow.insertCell(0);
+        var cell2 = newRow.insertCell(1);
+        var cell3 = newRow.insertCell(2);
+        var cell4 = newRow.insertCell(3);
+        var cell5 = newRow.insertCell(4);
+        var cell6 = newRow.insertCell(5);
+        var cell7 = newRow.insertCell(6);
+        var cell8 = newRow.insertCell(7);
 
         cell1.innerHTML = entry.name;
         cell2.innerHTML = entry.glExpiration;
         cell3.innerHTML = entry.governmentAgency.replace(/_/g, ' ').toUpperCase();
-        cell4.innerHTML = entry.medicines.map(med => `${med.medicine} - ${med.quantity}`).join("<br>");
-
-        let daysRemaining = calculateDaysRemaining(entry.glExpiration);
-        cell5.innerHTML = daysRemaining;
-
-        if (daysRemaining <= 30) {
-            cell5.classList.add("expired");
-        }
-
+        cell4.innerHTML = entry.medicine;
+        cell5.innerHTML = entry.quantity;
         cell6.innerHTML = entry.dateInputted;
         cell7.innerHTML = entry.remark;
-        cell8.innerHTML = `<button class="delete-btn" onclick="deleteRow(this)">Delete</button>`;
-    }
-
-    function calculateDaysRemaining(glExpiration) {
-        let expirationDate = new Date(glExpiration);
-        let currentDate = new Date();
-        let timeDiff = expirationDate - currentDate;
-        let daysRemaining = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
-        return daysRemaining;
+        cell8.innerHTML = '<button class="delete-btn" onclick="deleteRow(this)">Delete</button>';
     }
 
     function deleteRow(button) {
-        let row = button.parentNode.parentNode;
-        let index = row.rowIndex - 1;
+        var row = button.parentNode.parentNode;
+        var index = row.rowIndex - 1;
+        medicines.splice(index, 1);
+        saveToLocalStorage();
         row.parentNode.removeChild(row);
-
-        let data = localStorage.getItem("medicineData");
-        let medicineData = JSON.parse(data);
-        medicineData.splice(index, 1);
-        localStorage.setItem("medicineData", JSON.stringify(medicineData));
     }
 
     function loadTableData() {
-        let data = localStorage.getItem("medicineData");
-        let medicineData = data ? JSON.parse(data) : [];
-        medicineData.forEach(entry => {
-            appendRow(entry);
-        });
+        if (localStorage.getItem('medicines')) {
+            medicines = JSON.parse(localStorage.getItem('medicines'));
+            medicines.forEach(entry => appendRow(entry));
+        }
+    }
+
+    function saveToLocalStorage() {
+        localStorage.setItem('medicines', JSON.stringify(medicines));
     }
 
     function exportToPDF() {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
+        const doc = new jspdf.jsPDF();
         
-        let data = localStorage.getItem("medicineData");
-        let medicineData = data ? JSON.parse(data) : [];
-
-        let rows = medicineData.map(entry => [
-            entry.name,
-            entry.glExpiration,
-            entry.governmentAgency.replace(/_/g, ' ').toUpperCase(),
-            entry.medicines.map(med => `${med.medicine} - ${med.quantity}`).join("\n"),
-            calculateDaysRemaining(entry.glExpiration),
-            entry.dateInputted,
-            entry.remark
-        ]);
-
+        // Define columns for the table
+        const columns = ['Name', 'GL Expiration', 'Government Agency', 'Medicine', 'Quantity', 'Date Inputted', 'Remark'];
+   
+        // Prepare rows data from the table
+        const rows = [];
+        const table = document.getElementById('medicineTable');
+        const tbody = table.getElementsByTagName('tbody')[0];
+        for (let i = 0; i < tbody.rows.length; i++) {
+            let rowData = [];
+            for (let j = 0; j < tbody.rows[i].cells.length - 1; j++) {
+                rowData.push(tbody.rows[i].cells[j].innerHTML);
+            }
+            rows.push(rowData);
+        }
+   
+        // Add table to PDF
         doc.autoTable({
-            head: [['Name', 'GL Expiration', 'Government Agency', 'Medicines', 'Days Remaining', 'Date Inputted', 'Remark']],
-            body: rows
+            head: [columns],
+            body: rows,
+            theme: 'striped', // 'striped', 'grid' or 'plain'
+            styles: {
+                cellPadding: 3,
+                fontSize: 12,
+                fontStyle: 'normal',
+                overflow: 'linebreak',
+            },
+            margin: { top: 20 },
         });
-
-        doc.save("medicine_table.pdf");
+   
+        // Save PDF
+        doc.save('medicine_table.pdf');
     }
 </script>
 
