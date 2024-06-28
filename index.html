@@ -107,6 +107,10 @@
         <input type="text" id="medicine" name="medicine">
     </div>
     <div class="form-group">
+        <label for="brandName">Brand Name:</label>
+        <input type="text" id="brandName" name="brandName">
+    </div>
+    <div class="form-group">
         <label for="quantity">Quantity:</label>
         <input type="number" id="quantity" name="quantity">
     </div>
@@ -138,6 +142,7 @@
             <th>GL Expiration</th>
             <th>Government Agency</th>
             <th>Medicine</th>
+            <th>Brand Name</th>
             <th>Quantity</th>
             <th>Quantity Unit</th>
             <th>Date Inputted</th>
@@ -161,6 +166,7 @@
         var glExpiration = document.getElementById("glExpiration").value;
         var governmentAgency = document.getElementById("governmentAgency").value;
         var medicine = document.getElementById("medicine").value;
+        var brandName = document.getElementById("brandName").value;
         var quantity = document.getElementById("quantity").value;
         var quantityUnit = document.getElementById("quantityUnit").value;
         var remark = document.getElementById("remark").value;
@@ -172,6 +178,7 @@
             glExpiration: glExpiration,
             governmentAgency: governmentAgency,
             medicine: medicine,
+            brandName: brandName,
             quantity: quantity,
             quantityUnit: quantityUnit,
             dateInputted: currentDate,
@@ -199,16 +206,18 @@
         var cell7 = newRow.insertCell(6);
         var cell8 = newRow.insertCell(7);
         var cell9 = newRow.insertCell(8);
+        var cell10 = newRow.insertCell(9);
 
         cell1.innerHTML = entry.name;
         cell2.innerHTML = entry.glExpiration;
         cell3.innerHTML = entry.governmentAgency.replace(/_/g, ' ').toUpperCase();
         cell4.innerHTML = entry.medicine;
-        cell5.innerHTML = entry.quantity;
-        cell6.innerHTML = entry.quantityUnit;
-        cell7.innerHTML = entry.dateInputted;
-        cell8.innerHTML = entry.remark;
-        cell9.innerHTML = '<button class="delete-btn" onclick="deleteRow(this)">Delete</button>';
+        cell5.innerHTML = entry.brandName;
+        cell6.innerHTML = entry.quantity;
+        cell7.innerHTML = entry.quantityUnit;
+        cell8.innerHTML = entry.dateInputted;
+        cell9.innerHTML = entry.remark;
+        cell10.innerHTML = '<button class="delete-btn" onclick="deleteRow(this)">Delete</button>';
     }
 
     function deleteRow(button) {
@@ -234,7 +243,7 @@
         const doc = new jspdf.jsPDF();
         
         // Define columns for the table
-        const columns = ['Name', 'GL Expiration', 'Government Agency', 'Medicine', 'Quantity', 'Quantity Unit', 'Date Inputted', 'Remark'];
+        const columns = ['Name', 'GL Expiration', 'Government Agency', 'Medicine', 'Brand Name', 'Quantity', 'Quantity Unit', 'Date Inputted', 'Remark'];
    
         // Prepare rows data from the table
         const rows = [];
