@@ -72,6 +72,7 @@
         }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.21/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body>
 
@@ -103,6 +104,10 @@
         <input type="number" id="quantity" name="quantity">
         <button type="button" onclick="addMedicine()">Add Medicine</button>
     </div>
+    <div class="form-group">
+        <label for="remark">Remark:</label>
+        <input type="text" id="remark" name="remark">
+    </div>
     <input type="button" value="Add to Table" onclick="addToTable()">
 </form>
 
@@ -117,7 +122,9 @@
         <th>GL Expiration</th>
         <th>Government Agency</th>
         <th>Medicines</th>
-        <th>Days Remaining</th>
+        <th>Days Pending</th>
+        <th>Date Inputted</th>
+        <th>Remark</th>
         <th>Action</th>
     </tr>
 </table>
@@ -164,12 +171,17 @@
         var name = document.getElementById("name").value;
         var glExpiration = document.getElementById("glExpiration").value;
         var governmentAgency = document.getElementById("governmentAgency").value;
+        var remark = document.getElementById("remark").value;
+
+        let currentDate = new Date().toISOString().split('T')[0];
 
         let entry = {
             name: name,
             glExpiration: glExpiration,
             governmentAgency: governmentAgency,
-            medicines: medicines
+            medicines: medicines,
+            dateInputted: currentDate,
+            remark: remark
         };
 
         let data = localStorage.getItem("medicineData");
@@ -194,6 +206,8 @@
         var cell4 = row.insertCell(3);
         var cell5 = row.insertCell(4);
         var cell6 = row.insertCell(5);
+        var cell7 = row.insertCell(6);
+        var cell8 = row.insertCell(7);
 
         cell1.innerHTML = entry.name;
         cell2.innerHTML = entry.glExpiration;
@@ -207,7 +221,9 @@
             cell5.classList.add("expired");
         }
 
-        cell6.innerHTML = `<button class="delete-btn" onclick="deleteRow(this)">Delete</button>`;
+        cell6.innerHTML = entry.dateInputted;
+        cell7.innerHTML = entry.remark;
+        cell8.innerHTML = `<button class="delete-btn" onclick="deleteRow(this)">Delete</button>`;
     }
 
     function calculateDaysRemaining(glExpiration) {
@@ -240,16 +256,24 @@
     function exportToPDF() {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
+        
+        let data = localStorage.getItem("medicineData");
+        let medicineData = data ? JSON.parse(data) : [];
 
-        let table = document.getElementById("medicineTable");
-        let rows = table.getElementsByTagName("tr");
+        let rows = medicineData.map(entry => [
+            entry.name,
+            entry.glExpiration,
+            entry.governmentAgency.replace(/_/g, ' ').toUpperCase(),
+            entry.medicines.map(med => `${med.medicine} - ${med.quantity}`).join("\n"),
+            calculateDaysRemaining(entry.glExpiration),
+            entry.dateInputted,
+            entry.remark
+        ]);
 
-        for (let i = 0; i < rows.length; i++) {
-            let cols = rows[i].querySelectorAll("td, th");
-            for (let j = 0; j < cols.length; j++) {
-                doc.text(cols[j].innerText, 10 + j * 40, 10 + i * 10);
-            }
-        }
+        doc.autoTable({
+            head: [['Name', 'GL Expiration', 'Government Agency', 'Medicines', 'Days Remaining', 'Date Inputted', 'Remark']],
+            body: rows
+        });
 
         doc.save("medicine_table.pdf");
     }
