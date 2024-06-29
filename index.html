@@ -102,31 +102,34 @@
             <option value="baclaran_redemptorist">Baclaran Redemptorist</option>
         </select>
     </div>
-    <div class="form-group">
-        <label for="medicine">Medicine:</label>
-        <input type="text" id="medicine" name="medicine">
+    <div id="medicineEntries">
+        <div class="form-group">
+            <label for="medicine">Medicine:</label>
+            <input type="text" id="medicine" name="medicine">
+        </div>
+        <div class="form-group">
+            <label for="brandName">Brand Name:</label>
+            <input type="text" id="brandName" name="brandName">
+        </div>
+        <div class="form-group">
+            <label for="quantity">Quantity:</label>
+            <input type="number" id="quantity" name="quantity">
+        </div>
+        <div class="form-group">
+            <label for="quantityUnit">Quantity Unit:</label>
+            <select id="quantityUnit" name="quantityUnit">
+                <option value="pcs">pcs</option>
+                <option value="box">box</option>
+                <option value="vial">vial</option>
+                <option value="pfs">pfs</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="remark">Remark:</label>
+            <input type="text" id="remark" name="remark">
+        </div>
     </div>
-    <div class="form-group">
-        <label for="brandName">Brand Name:</label>
-        <input type="text" id="brandName" name="brandName">
-    </div>
-    <div class="form-group">
-        <label for="quantity">Quantity:</label>
-        <input type="number" id="quantity" name="quantity">
-    </div>
-    <div class="form-group">
-        <label for="quantityUnit">Quantity Unit:</label>
-        <select id="quantityUnit" name="quantityUnit">
-            <option value="pcs">pcs</option>
-            <option value="box">box</option>
-            <option value="vial">vial</option>
-            <option value="pfs">pfs</option>
-        </select>
-    </div>
-    <div class="form-group">
-        <label for="remark">Remark:</label>
-        <input type="text" id="remark" name="remark">
-    </div>
+    <input type="button" value="Add Medicine Entry" onclick="addMedicineEntry()">
     <input type="button" value="Add to Table" onclick="addToTable()">
 </form>
 
@@ -156,40 +159,82 @@
 
 <script>
     let medicines = [];
+    let medicineEntries = [];
 
     document.addEventListener('DOMContentLoaded', (event) => {
         loadTableData();
     });
 
-    function addToTable() {
-        var name = document.getElementById("name").value;
-        var glExpiration = document.getElementById("glExpiration").value;
-        var governmentAgency = document.getElementById("governmentAgency").value;
+    function addMedicineEntry() {
         var medicine = document.getElementById("medicine").value;
         var brandName = document.getElementById("brandName").value;
         var quantity = document.getElementById("quantity").value;
         var quantityUnit = document.getElementById("quantityUnit").value;
         var remark = document.getElementById("remark").value;
 
-        let currentDate = new Date().toISOString().split('T')[0];
-
         let entry = {
-            name: name,
-            glExpiration: glExpiration,
-            governmentAgency: governmentAgency,
             medicine: medicine,
             brandName: brandName,
             quantity: quantity,
             quantityUnit: quantityUnit,
-            dateInputted: currentDate,
             remark: remark
         };
 
-        medicines.push(entry);
+        medicineEntries.push(entry);
+
+        let medicineEntriesDiv = document.getElementById("medicineEntries");
+        medicineEntriesDiv.insertAdjacentHTML('beforeend', `
+            <div class="form-group">
+                <label>Medicine:</label>
+                <p>${medicine}</p>
+            </div>
+            <div class="form-group">
+                <label>Brand Name:</label>
+                <p>${brandName}</p>
+            </div>
+            <div class="form-group">
+                <label>Quantity:</label>
+                <p>${quantity}</p>
+            </div>
+            <div class="form-group">
+                <label>Quantity Unit:</label>
+                <p>${quantityUnit}</p>
+            </div>
+            <div class="form-group">
+                <label>Remark:</label>
+                <p>${remark}</p>
+            </div>
+        `);
+
+        document.getElementById("medicineForm").reset();
+    }
+
+    function addToTable() {
+        var name = document.getElementById("name").value;
+        var glExpiration = document.getElementById("glExpiration").value;
+        var governmentAgency = document.getElementById("governmentAgency").value;
+        let currentDate = new Date().toISOString().split('T')[0];
+
+        medicineEntries.forEach(entry => {
+            let row = {
+                name: name,
+                glExpiration: glExpiration,
+                governmentAgency: governmentAgency,
+                medicine: entry.medicine,
+                brandName: entry.brandName,
+                quantity: entry.quantity,
+                quantityUnit: entry.quantityUnit,
+                dateInputted: currentDate,
+                remark: entry.remark
+            };
+
+            medicines.push(row);
+            appendRow(row);
+        });
+
+        medicineEntries = [];
         saveToLocalStorage();
-
-        appendRow(entry);
-
+        document.getElementById("medicineEntries").innerHTML = '';
         document.getElementById("medicineForm").reset();
     }
 
@@ -240,50 +285,39 @@
     }
 
     function exportToPDF() {
-        const doc = new jspdf.jsPDF('landscape');
-        
-        // Define columns for the table
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF('landscape');
+
         const columns = ['Name', 'GL Expiration', 'Government Agency', 'Medicine', 'Brand Name', 'Quantity', 'Quantity Unit', 'Date Inputted', 'Remark'];
-   
-        // Prepare rows data from the table
         const rows = [];
-        const table = document.getElementById('medicineTable');
-        const tbody = table.getElementsByTagName('tbody')[0];
-        for (let i = 0; i < tbody.rows.length; i++) {
-            let rowData = [];
-            for (let j = 0; j < tbody.rows[i].cells.length - 1; j++) {
-                rowData.push(tbody.rows[i].cells[j].innerHTML);
-            }
-            rows.push(rowData);
-        }
-   
-        // Add table to PDF
+
+        medicines.forEach(entry => {
+            rows.push([
+                entry.name, 
+                entry.glExpiration, 
+                entry.governmentAgency.replace(/_/g, ' ').toUpperCase(), 
+                entry.medicine, 
+                entry.brandName, 
+                entry.quantity, 
+                entry.quantityUnit, 
+                entry.dateInputted, 
+                entry.remark
+            ]);
+        });
+
+        doc.setFontSize(18);
+        doc.text('Medicine Information', 14, 22);
+
         doc.autoTable({
             head: [columns],
             body: rows,
-            theme: 'striped', // 'striped', 'grid' or 'plain'
-            styles: {
-                cellPadding: 3,
-                fontSize: 12,
-                fontStyle: 'normal',
-                overflow: 'linebreak',
-            },
-            columnStyles: {
-                0: { cellWidth: 'auto' },
-                1: { cellWidth: 'auto' },
-                2: { cellWidth: 'auto' },
-                3: { cellWidth: 'auto' },
-                4: { cellWidth: 'auto' },
-                5: { cellWidth: 'auto' },
-                6: { cellWidth: 'auto' },
-                7: { cellWidth: 'auto' },
-                8: { cellWidth: 'auto' },
-            },
-            margin: { top: 20 },
+            theme: 'striped',
+            startY: 30,
+            margin: { top: 30, right: 10, bottom: 10, left: 10 },
+            styles: { fontSize: 10 }
         });
-   
-        // Save PDF
-        doc.save('medicine_table.pdf');
+
+        doc.save('medicine_information.pdf');
     }
 </script>
 
