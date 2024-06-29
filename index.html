@@ -54,6 +54,7 @@
             border: 1px solid #ccc;
             border-radius: 4px;
             box-sizing: border-box;
+            text-transform: uppercase;
         }
         button, input[type="button"] {
             background-color: #4CAF50;
@@ -82,75 +83,80 @@
 </head>
 <body>
 
-<h2>Medicine Information</h2>
+<h2>MEDICINE INFORMATION</h2>
 <form id="medicineForm">
     <div class="form-group">
-        <label for="name">Name:</label>
+        <label for="name">NAME:</label>
         <input type="text" id="name" name="name">
     </div>
     <div class="form-group">
-        <label for="glExpiration">GL Expiration:</label>
+        <label for="glAmount">GL AMOUNT:</label>
+        <input type="number" id="glAmount" name="glAmount">
+    </div>
+    <div class="form-group">
+        <label for="glExpiration">GL EXPIRATION:</label>
         <input type="date" id="glExpiration" name="glExpiration">
     </div>
     <div class="form-group">
-        <label for="governmentAgency">Government Agency:</label>
+        <label for="governmentAgency">GOVERNMENT AGENCY:</label>
         <select id="governmentAgency" name="governmentAgency">
-            <option value="pcso">PCSO</option>
-            <option value="office_of_the_president">Office of the President</option>
-            <option value="dswd">DSWD</option>
-            <option value="office_of_the_vice_president">Office of the Vice President</option>
-            <option value="baclaran_redemptorist">Baclaran Redemptorist</option>
+            <option value="PCSO">PCSO</option>
+            <option value="OFFICE_OF_THE_PRESIDENT">OFFICE OF THE PRESIDENT</option>
+            <option value="DSWD">DSWD</option>
+            <option value="OFFICE_OF_THE_VICE_PRESIDENT">OFFICE OF THE VICE PRESIDENT</option>
+            <option value="BACLARAN_REDEMPTORIST">BACLARAN REDEMPTORIST</option>
         </select>
     </div>
     <div id="medicineEntries">
         <div class="form-group">
-            <label for="medicine">Medicine:</label>
+            <label for="medicine">MEDICINE:</label>
             <input type="text" id="medicine" name="medicine">
         </div>
         <div class="form-group">
-            <label for="brandName">Brand Name:</label>
+            <label for="brandName">BRAND NAME:</label>
             <input type="text" id="brandName" name="brandName">
         </div>
         <div class="form-group">
-            <label for="quantity">Quantity:</label>
+            <label for="quantity">QUANTITY:</label>
             <input type="number" id="quantity" name="quantity">
         </div>
         <div class="form-group">
-            <label for="quantityUnit">Quantity Unit:</label>
+            <label for="quantityUnit">QUANTITY UNIT:</label>
             <select id="quantityUnit" name="quantityUnit">
-                <option value="pcs">pcs</option>
-                <option value="box">box</option>
-                <option value="vial">vial</option>
-                <option value="pfs">pfs</option>
+                <option value="PCS">PCS</option>
+                <option value="BOX">BOX</option>
+                <option value="VIAL">VIAL</option>
+                <option value="PFS">PFS</option>
             </select>
         </div>
         <div class="form-group">
-            <label for="remark">Remark:</label>
+            <label for="remark">REMARK:</label>
             <input type="text" id="remark" name="remark">
         </div>
     </div>
-    <input type="button" value="Add Medicine Entry" onclick="addMedicineEntry()">
-    <input type="button" value="Add to Table" onclick="addToTable()">
+    <input type="button" value="ADD MEDICINE ENTRY" onclick="addMedicineEntry()">
+    <input type="button" value="ADD TO TABLE" onclick="addToTable()">
 </form>
 
 <div class="buttons">
-    <button onclick="exportToPDF()">Export to PDF</button>
+    <button onclick="exportToPDF()">EXPORT TO PDF</button>
 </div>
 
-<h2>Medicine Table</h2>
+<h2>MEDICINE TABLE</h2>
 <table id="medicineTable">
     <thead>
         <tr>
-            <th>Name</th>
-            <th>GL Expiration</th>
-            <th>Government Agency</th>
-            <th>Medicine</th>
-            <th>Brand Name</th>
-            <th>Quantity</th>
-            <th>Quantity Unit</th>
-            <th>Date Inputted</th>
-            <th>Remark</th>
-            <th>Action</th>
+            <th>NAME</th>
+            <th>GL AMOUNT</th>
+            <th>GL EXPIRATION</th>
+            <th>GOVERNMENT AGENCY</th>
+            <th>MEDICINE</th>
+            <th>BRAND NAME</th>
+            <th>QUANTITY</th>
+            <th>QUANTITY UNIT</th>
+            <th>DATE INPUTTED</th>
+            <th>REMARK</th>
+            <th>ACTION</th>
         </tr>
     </thead>
     <tbody>
@@ -185,23 +191,23 @@
         let medicineEntriesDiv = document.getElementById("medicineEntries");
         medicineEntriesDiv.insertAdjacentHTML('beforeend', `
             <div class="form-group">
-                <label>Medicine:</label>
+                <label>MEDICINE:</label>
                 <p>${medicine}</p>
             </div>
             <div class="form-group">
-                <label>Brand Name:</label>
+                <label>BRAND NAME:</label>
                 <p>${brandName}</p>
             </div>
             <div class="form-group">
-                <label>Quantity:</label>
+                <label>QUANTITY:</label>
                 <p>${quantity}</p>
             </div>
             <div class="form-group">
-                <label>Quantity Unit:</label>
+                <label>QUANTITY UNIT:</label>
                 <p>${quantityUnit}</p>
             </div>
             <div class="form-group">
-                <label>Remark:</label>
+                <label>REMARK:</label>
                 <p>${remark}</p>
             </div>
         `);
@@ -211,6 +217,7 @@
 
     function addToTable() {
         var name = document.getElementById("name").value;
+        var glAmount = document.getElementById("glAmount").value;
         var glExpiration = document.getElementById("glExpiration").value;
         var governmentAgency = document.getElementById("governmentAgency").value;
         let currentDate = new Date().toISOString().split('T')[0];
@@ -218,6 +225,7 @@
         medicineEntries.forEach(entry => {
             let row = {
                 name: name,
+                glAmount: glAmount,
                 glExpiration: glExpiration,
                 governmentAgency: governmentAgency,
                 medicine: entry.medicine,
@@ -252,17 +260,19 @@
         var cell8 = newRow.insertCell(7);
         var cell9 = newRow.insertCell(8);
         var cell10 = newRow.insertCell(9);
+        var cell11 = newRow.insertCell(10);
 
         cell1.innerHTML = entry.name;
-        cell2.innerHTML = entry.glExpiration;
-        cell3.innerHTML = entry.governmentAgency.replace(/_/g, ' ').toUpperCase();
-        cell4.innerHTML = entry.medicine;
-        cell5.innerHTML = entry.brandName;
-        cell6.innerHTML = entry.quantity;
-        cell7.innerHTML = entry.quantityUnit;
-        cell8.innerHTML = entry.dateInputted;
-        cell9.innerHTML = entry.remark;
-        cell10.innerHTML = '<button class="delete-btn" onclick="deleteRow(this)">Delete</button>';
+        cell2.innerHTML = entry.glAmount;
+        cell3.innerHTML = entry.glExpiration;
+        cell4.innerHTML = entry.governmentAgency.replace(/_/g, ' ').toUpperCase();
+        cell5.innerHTML = entry.medicine;
+        cell6.innerHTML = entry.brandName;
+        cell7.innerHTML = entry.quantity;
+        cell8.innerHTML = entry.quantityUnit;
+        cell9.innerHTML = entry.dateInputted;
+        cell10.innerHTML = entry.remark;
+        cell11.innerHTML = '<button class="delete-btn" onclick="deleteRow(this)">DELETE</button>';
     }
 
     function deleteRow(button) {
@@ -288,12 +298,13 @@
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF('landscape');
 
-        const columns = ['Name', 'GL Expiration', 'Government Agency', 'Medicine', 'Brand Name', 'Quantity', 'Quantity Unit', 'Date Inputted', 'Remark'];
+        const columns = ['NAME', 'GL AMOUNT', 'GL EXPIRATION', 'GOVERNMENT AGENCY', 'MEDICINE', 'BRAND NAME', 'QUANTITY', 'QUANTITY UNIT', 'DATE INPUTTED', 'REMARK'];
         const rows = [];
 
         medicines.forEach(entry => {
             rows.push([
                 entry.name, 
+                entry.glAmount,
                 entry.glExpiration, 
                 entry.governmentAgency.replace(/_/g, ' ').toUpperCase(), 
                 entry.medicine, 
@@ -306,7 +317,7 @@
         });
 
         doc.setFontSize(18);
-        doc.text('Medicine Information', 14, 22);
+        doc.text('MEDICINE INFORMATION', 14, 22);
 
         doc.autoTable({
             head: [columns],
@@ -317,7 +328,7 @@
             styles: { fontSize: 10 }
         });
 
-        doc.save('medicine_information.pdf');
+        doc.save('MEDICINE_INFORMATION.pdf');
     }
 </script>
 
