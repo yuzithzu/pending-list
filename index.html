@@ -107,34 +107,31 @@
             <option value="BACLARAN_REDEMPTORIST">BACLARAN REDEMPTORIST</option>
         </select>
     </div>
-    <div id="medicineEntries">
-        <div class="form-group">
-            <label for="medicine">MEDICINE:</label>
-            <input type="text" id="medicine" name="medicine">
-        </div>
-        <div class="form-group">
-            <label for="brandName">BRAND NAME:</label>
-            <input type="text" id="brandName" name="brandName">
-        </div>
-        <div class="form-group">
-            <label for="quantity">QUANTITY:</label>
-            <input type="number" id="quantity" name="quantity">
-        </div>
-        <div class="form-group">
-            <label for="quantityUnit">QUANTITY UNIT:</label>
-            <select id="quantityUnit" name="quantityUnit">
-                <option value="PCS">PCS</option>
-                <option value="BOX">BOX</option>
-                <option value="VIAL">VIAL</option>
-                <option value="PFS">PFS</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label for="remark">REMARK:</label>
-            <input type="text" id="remark" name="remark">
-        </div>
+    <div class="form-group">
+        <label for="medicine">MEDICINE:</label>
+        <input type="text" id="medicine" name="medicine">
     </div>
-    <input type="button" value="ADD MEDICINE ENTRY" onclick="addMedicineEntry()">
+    <div class="form-group">
+        <label for="brandName">BRAND NAME:</label>
+        <input type="text" id="brandName" name="brandName">
+    </div>
+    <div class="form-group">
+        <label for="quantity">QUANTITY:</label>
+        <input type="number" id="quantity" name="quantity">
+    </div>
+    <div class="form-group">
+        <label for="quantityUnit">QUANTITY UNIT:</label>
+        <select id="quantityUnit" name="quantityUnit">
+            <option value="PCS">PCS</option>
+            <option value="BOX">BOX</option>
+            <option value="VIAL">VIAL</option>
+            <option value="PFS">PFS</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="remark">REMARK:</label>
+        <input type="text" id="remark" name="remark">
+    </div>
     <input type="button" value="ADD TO TABLE" onclick="addToTable()">
 </form>
 
@@ -165,84 +162,40 @@
 
 <script>
     let medicines = [];
-    let medicineEntries = [];
 
     document.addEventListener('DOMContentLoaded', (event) => {
         loadTableData();
     });
-
-    function addMedicineEntry() {
-        var medicine = document.getElementById("medicine").value;
-        var brandName = document.getElementById("brandName").value;
-        var quantity = document.getElementById("quantity").value;
-        var quantityUnit = document.getElementById("quantityUnit").value;
-        var remark = document.getElementById("remark").value;
-
-        let entry = {
-            medicine: medicine,
-            brandName: brandName,
-            quantity: quantity,
-            quantityUnit: quantityUnit,
-            remark: remark
-        };
-
-        medicineEntries.push(entry);
-
-        let medicineEntriesDiv = document.getElementById("medicineEntries");
-        medicineEntriesDiv.insertAdjacentHTML('beforeend', `
-            <div class="form-group">
-                <label>MEDICINE:</label>
-                <p>${medicine}</p>
-            </div>
-            <div class="form-group">
-                <label>BRAND NAME:</label>
-                <p>${brandName}</p>
-            </div>
-            <div class="form-group">
-                <label>QUANTITY:</label>
-                <p>${quantity}</p>
-            </div>
-            <div class="form-group">
-                <label>QUANTITY UNIT:</label>
-                <p>${quantityUnit}</p>
-            </div>
-            <div class="form-group">
-                <label>REMARK:</label>
-                <p>${remark}</p>
-            </div>
-        `);
-
-        document.getElementById("medicineForm").reset();
-    }
 
     function addToTable() {
         var name = document.getElementById("name").value;
         var glAmount = document.getElementById("glAmount").value;
         var glExpiration = document.getElementById("glExpiration").value;
         var governmentAgency = document.getElementById("governmentAgency").value;
+        var medicine = document.getElementById("medicine").value;
+        var brandName = document.getElementById("brandName").value;
+        var quantity = document.getElementById("quantity").value;
+        var quantityUnit = document.getElementById("quantityUnit").value;
+        var remark = document.getElementById("remark").value;
         let currentDate = new Date().toISOString().split('T')[0];
 
-        medicineEntries.forEach(entry => {
-            let row = {
-                name: name,
-                glAmount: glAmount,
-                glExpiration: glExpiration,
-                governmentAgency: governmentAgency,
-                medicine: entry.medicine,
-                brandName: entry.brandName,
-                quantity: entry.quantity,
-                quantityUnit: entry.quantityUnit,
-                dateInputted: currentDate,
-                remark: entry.remark
-            };
+        let row = {
+            name: name,
+            glAmount: glAmount,
+            glExpiration: glExpiration,
+            governmentAgency: governmentAgency,
+            medicine: medicine,
+            brandName: brandName,
+            quantity: quantity,
+            quantityUnit: quantityUnit,
+            dateInputted: currentDate,
+            remark: remark
+        };
 
-            medicines.push(row);
-            appendRow(row);
-        });
+        medicines.push(row);
+        appendRow(row);
 
-        medicineEntries = [];
         saveToLocalStorage();
-        document.getElementById("medicineEntries").innerHTML = '';
         document.getElementById("medicineForm").reset();
     }
 
