@@ -216,7 +216,7 @@
         var cell11 = newRow.insertCell(10);
 
         cell1.innerHTML = entry.name;
-        cell2.innerHTML = entry.glAmount;
+        cell2.innerHTML = formatNumber(entry.glAmount);
         cell3.innerHTML = entry.glExpiration;
         cell4.innerHTML = entry.governmentAgency.replace(/_/g, ' ').toUpperCase();
         cell5.innerHTML = entry.medicine;
@@ -247,6 +247,10 @@
         localStorage.setItem('medicines', JSON.stringify(medicines));
     }
 
+    function formatNumber(number) {
+        return parseFloat(number).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
     function exportToPDF() {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF('landscape');
@@ -257,7 +261,7 @@
         medicines.forEach(entry => {
             rows.push([
                 entry.name, 
-                entry.glAmount,
+                formatNumber(entry.glAmount),
                 entry.glExpiration, 
                 entry.governmentAgency.replace(/_/g, ' ').toUpperCase(), 
                 entry.medicine, 
