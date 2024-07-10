@@ -32,7 +32,6 @@
             border: 1px solid #ddd;
             padding: 8px;
             text-align: left;
-            word-wrap: break-word;
         }
         th {
             background-color: #f2f2f2;
@@ -216,16 +215,16 @@
         var cell10 = newRow.insertCell(9);
         var cell11 = newRow.insertCell(10);
 
-        cell1.innerHTML = entry.name;
+        cell1.innerHTML = entry.name.toUpperCase();
         cell2.innerHTML = formatNumber(entry.glAmount);
         cell3.innerHTML = entry.glExpiration;
         cell4.innerHTML = entry.governmentAgency.replace(/_/g, ' ').toUpperCase();
-        cell5.innerHTML = entry.medicine;
-        cell6.innerHTML = entry.brandName;
+        cell5.innerHTML = entry.medicine.toUpperCase();
+        cell6.innerHTML = entry.brandName.toUpperCase();
         cell7.innerHTML = entry.quantity;
-        cell8.innerHTML = entry.quantityUnit;
+        cell8.innerHTML = entry.quantityUnit.toUpperCase();
         cell9.innerHTML = entry.dateInputted;
-        cell10.innerHTML = entry.remark;
+        cell10.innerHTML = entry.remark.toUpperCase();
         cell11.innerHTML = '<button class="delete-btn" onclick="deleteRow(this)">DELETE</button>';
     }
 
@@ -252,6 +251,18 @@
         return parseFloat(number).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
 
+    function generateSummary() {
+        const summary = {};
+        medicines.forEach(med => {
+            if (summary[med.medicine]) {
+                summary[med.medicine] += parseInt(med.quantity);
+            } else {
+                summary[med.medicine] = parseInt(med.quantity);
+            }
+        });
+        return summary;
+    }
+
     function exportToPDF() {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF('landscape');
@@ -261,18 +272,21 @@
 
         medicines.forEach(entry => {
             rows.push([
-                entry.name, 
+                entry.name.toUpperCase(), 
                 formatNumber(entry.glAmount),
                 entry.glExpiration, 
                 entry.governmentAgency.replace(/_/g, ' ').toUpperCase(), 
-                entry.medicine, 
-                entry.brandName, 
+                entry.medicine.toUpperCase(), 
+                entry.brandName.toUpperCase(), 
                 entry.quantity, 
-                entry.quantityUnit, 
+                entry.quantityUnit.toUpperCase(), 
                 entry.dateInputted, 
-                entry.remark
+                entry.remark.toUpperCase()
             ]);
         });
+
+        const summary = generateSummary();
+        const summaryRows = Object.keys(summary).map(medicine => [medicine.toUpperCase(), summary[medicine]]);
 
         doc.setFontSize(18);
         doc.text('MEDICINE INFORMATION', 14, 22);
@@ -280,28 +294,47 @@
         doc.autoTable({
             head: [columns],
             body: rows,
-            theme: 'striped',
+            theme: 'grid',
             startY: 30,
             margin: { top: 30, right: 10, bottom: 10, left: 10 },
-            styles: { fontSize: 10, cellPadding: 3, overflow: 'linebreak' },
+            styles: { fontSize: 10 },
+            headStyles: { fillColor: [220, 220, 220], halign: 'center' },
             columnStyles: {
-                0: { cellWidth: 25 },
-                1: { cellWidth: 25 },
-                2: { cellWidth: 25 },
-                3: { cellWidth: 35 },
-                4: { cellWidth: 25 },
-                5: { cellWidth: 25 },
+                0: { cellWidth: 20 },
+                1: { cellWidth: 20 },
+                2: { cellWidth: 30 },
+                3: { cellWidth: 30 },
+                4: { cellWidth: 20 },
+                5: { cellWidth: 30 },
                 6: { cellWidth: 20 },
                 7: { cellWidth: 20 },
-                8: { cellWidth: 25 },
-                9: { cellWidth: 25 }
+                8: { cellWidth: 30 },
+                9: { cellWidth: 30 }
             },
-            didDrawCell: function(data) {
-                if (data.column.index === -1 && data.row.section === 'body') {
-                    doc.setFillColor(200, 200, 255);
-                    doc.rect(data.cell.x, data.cell.y, data.cell.width, data.cell.height, 'F');
-                }
+            didDrawPage: function (data) {
+                const pageWidth = doc.internal.pageSize.width || doc.internal.pageSize.getWidth();
+                const pageHeight = doc.internal.pageSize.height || doc.internal.pageSize.getHeight();
+                doc.setFillColor(255, 255, 255);
+                doc.rect(0, pageHeight - 10, pageWidth, 10, 'F');
+                doc.setFontSize(10);
+                doc.setTextColor(150);
+                doc.text('Page ' + doc.internal.getNumberOfPages(), data.settings.margin.left, pageHeight - 5);
             }
+        });
+
+        doc.addPage();
+
+        doc.setFontSize(18);
+        doc.text('SUMMARY OF MEDICINES', 14, 22);
+
+        doc.autoTable({
+            head: [['MEDICINE', 'TOTAL QUANTITY']],
+            body: summaryRows,
+            theme: 'grid',
+            startY: 30,
+            margin: { top: 30, right: 10, bottom: 10, left: 10 },
+            styles: { fontSize: 10 },
+            headStyles: { fillColor: [220, 220, 220], halign: 'center' }
         });
 
         doc.save('MEDICINE_INFORMATION.pdf');
