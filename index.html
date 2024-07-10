@@ -88,7 +88,7 @@
 <form id="medicineForm">
     <div class="form-group">
         <label for="name">NAME:</label>
-        <input type="text" id="name" name="name">
+        <input type="text" id="name" name="name" oninput="this.value = this.value.toUpperCase()">
     </div>
     <div class="form-group">
         <label for="glAmount">GL AMOUNT:</label>
@@ -110,11 +110,11 @@
     </div>
     <div class="form-group">
         <label for="medicine">MEDICINE:</label>
-        <input type="text" id="medicine" name="medicine">
+        <input type="text" id="medicine" name="medicine" oninput="this.value = this.value.toUpperCase()">
     </div>
     <div class="form-group">
         <label for="brandName">BRAND NAME:</label>
-        <input type="text" id="brandName" name="brandName">
+        <input type="text" id="brandName" name="brandName" oninput="this.value = this.value.toUpperCase()">
     </div>
     <div class="form-group">
         <label for="quantity">QUANTITY:</label>
@@ -131,7 +131,7 @@
     </div>
     <div class="form-group">
         <label for="remark">REMARK:</label>
-        <input type="text" id="remark" name="remark">
+        <input type="text" id="remark" name="remark" oninput="this.value = this.value.toUpperCase()">
     </div>
     <input type="button" value="ADD TO TABLE" onclick="addToTable()">
 </form>
@@ -285,16 +285,16 @@
             margin: { top: 30, right: 10, bottom: 10, left: 10 },
             styles: { fontSize: 10, cellPadding: 3, overflow: 'linebreak' },
             columnStyles: {
-                0: { cellWidth: 25 },
-                1: { cellWidth: 25 },
-                2: { cellWidth: 25 },
-                3: { cellWidth: 35 },
-                4: { cellWidth: 25 },
-                5: { cellWidth: 25 },
-                6: { cellWidth: 20 },
-                7: { cellWidth: 20 },
-                8: { cellWidth: 25 },
-                9: { cellWidth: 25 }
+                0: { cellWidth: 30 },
+                1: { cellWidth: 30 },
+                2: { cellWidth: 30 },
+                3: { cellWidth: 40 },
+                4: { cellWidth: 30 },
+                5: { cellWidth: 30 },
+                6: { cellWidth: 25 },
+                7: { cellWidth: 25 },
+                8: { cellWidth: 30 },
+                9: { cellWidth: 30 }
             },
             didDrawCell: function(data) {
                 if (data.column.index === -1 && data.row.section === 'body') {
