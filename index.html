@@ -34,7 +34,9 @@
             text-align: left;
         }
         th {
-            background-color: #f2f2f2;
+            background-color: #007BFF;
+            color: white;
+            text-align: center;
         }
         .form-group {
             margin-bottom: 15px;
@@ -215,16 +217,16 @@
         var cell10 = newRow.insertCell(9);
         var cell11 = newRow.insertCell(10);
 
-        cell1.innerHTML = entry.name.toUpperCase();
-        cell2.innerHTML = formatNumber(entry.glAmount);
+        cell1.innerHTML = entry.name;
+        cell2.innerHTML = entry.glAmount;
         cell3.innerHTML = entry.glExpiration;
         cell4.innerHTML = entry.governmentAgency.replace(/_/g, ' ').toUpperCase();
-        cell5.innerHTML = entry.medicine.toUpperCase();
-        cell6.innerHTML = entry.brandName.toUpperCase();
+        cell5.innerHTML = entry.medicine;
+        cell6.innerHTML = entry.brandName;
         cell7.innerHTML = entry.quantity;
-        cell8.innerHTML = entry.quantityUnit.toUpperCase();
+        cell8.innerHTML = entry.quantityUnit;
         cell9.innerHTML = entry.dateInputted;
-        cell10.innerHTML = entry.remark.toUpperCase();
+        cell10.innerHTML = entry.remark;
         cell11.innerHTML = '<button class="delete-btn" onclick="deleteRow(this)">DELETE</button>';
     }
 
@@ -247,46 +249,34 @@
         localStorage.setItem('medicines', JSON.stringify(medicines));
     }
 
-    function formatNumber(number) {
-        return parseFloat(number).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    }
-
-    function generateSummary() {
-        const summary = {};
-        medicines.forEach(med => {
-            if (summary[med.medicine]) {
-                summary[med.medicine] += parseInt(med.quantity);
-            } else {
-                summary[med.medicine] = parseInt(med.quantity);
-            }
-        });
-        return summary;
-    }
-
     function exportToPDF() {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF('landscape');
 
         const columns = ['NAME', 'GL AMOUNT', 'GL EXPIRATION', 'GOVERNMENT AGENCY', 'MEDICINE', 'BRAND NAME', 'QUANTITY', 'QUANTITY UNIT', 'DATE INPUTTED', 'REMARK'];
         const rows = [];
+        const summary = {};
 
         medicines.forEach(entry => {
+            const key = `${entry.medicine.toUpperCase()} (${entry.brandName.toUpperCase()})`;
+            if (!summary[key]) {
+                summary[key] = 0;
+            }
+            summary[key] += parseInt(entry.quantity);
+
             rows.push([
-                entry.name.toUpperCase(), 
-                formatNumber(entry.glAmount),
-                entry.glExpiration, 
-                entry.governmentAgency.replace(/_/g, ' ').toUpperCase(), 
-                entry.medicine.toUpperCase(), 
-                entry.brandName.toUpperCase(), 
-                entry.quantity, 
-                entry.quantityUnit.toUpperCase(), 
-                entry.dateInputted, 
-                entry.remark.toUpperCase()
+                entry.name.toUpperCase(),
+                entry.glAmount,
+                entry.glExpiration,
+                entry.governmentAgency.replace(/_/g, ' ').toUpperCase(),
+                entry.medicine.toUpperCase(),
+                entry.brandName.toUpperCase(),
+                entry.quantity,
+                entry.quantityUnit,
+                entry.dateInputted,
+                entry.remark
             ]);
         });
-
-        const summary = generateSummary();
-        const summaryRows = Object.keys(summary).map(medicine => [medicine.toUpperCase(), summary[medicine]]);
 
         doc.setFontSize(18);
         doc.text('MEDICINE INFORMATION', 14, 22);
@@ -294,47 +284,43 @@
         doc.autoTable({
             head: [columns],
             body: rows,
-            theme: 'grid',
+            theme: 'striped',
             startY: 30,
             margin: { top: 30, right: 10, bottom: 10, left: 10 },
             styles: { fontSize: 10 },
-            headStyles: { fillColor: [0, 123, 220], halign: 'center' },
+            headStyles: { fillColor: [0, 123, 255], halign: 'center' },
             columnStyles: {
-                0: { cellWidth: 20 },
-                1: { cellWidth: 20 },
-                2: { cellWidth: 30 },
-                3: { cellWidth: 30 },
-                4: { cellWidth: 20 },
-                5: { cellWidth: 30 },
-                6: { cellWidth: 20 },
-                7: { cellWidth: 20 },
-                8: { cellWidth: 30 },
-                9: { cellWidth: 30 }
+                0: { cellWidth: 'auto' },
+                1: { cellWidth: 'auto' },
+                2: { cellWidth: 'auto' },
+                3: { cellWidth: 'auto' },
+                4: { cellWidth: 'auto' },
+                5: { cellWidth: 'auto' },
+                6: { cellWidth: 'auto' },
+                7: { cellWidth: 'auto' },
+                8: { cellWidth: 'auto' },
+                9: { cellWidth: 'auto' }
             },
-            didDrawPage: function (data) {
-                const pageWidth = doc.internal.pageSize.width || doc.internal.pageSize.getWidth();
-                const pageHeight = doc.internal.pageSize.height || doc.internal.pageSize.getHeight();
-                doc.setFillColor(255, 255, 255);
-                doc.rect(0, pageHeight - 10, pageWidth, 10, 'F');
-                doc.setFontSize(10);
-                doc.setTextColor(150);
-                doc.text('Page ' + doc.internal.getNumberOfPages(), data.settings.margin.left, pageHeight - 5);
-            }
         });
+
+        const summaryRows = [];
+        for (const [key, value] of Object.entries(summary)) {
+            summaryRows.push([key, value]);
+        }
 
         doc.addPage();
 
         doc.setFontSize(18);
-        doc.text('SUMMARY OF MEDICINES', 14, 22);
+        doc.text('SUMMARY', 14, 22);
 
         doc.autoTable({
-            head: [['MEDICINE', 'TOTAL QUANTITY']],
+            head: [['MEDICINE (BRAND NAME)', 'TOTAL QUANTITY']],
             body: summaryRows,
-            theme: 'grid',
+            theme: 'striped',
             startY: 30,
-            margin: { top: 30, right: 10, bottom: 10, left: 10 },
+            margin: { top: 10, right: 10, bottom: 10, left: 10 },
             styles: { fontSize: 10 },
-            headStyles: { fillColor: [220, 220, 220], halign: 'center' }
+            headStyles: { fillColor: [0, 123, 255] }
         });
 
         doc.save('MEDICINE_INFORMATION.pdf');
