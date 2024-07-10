@@ -32,6 +32,7 @@
             border: 1px solid #ddd;
             padding: 8px;
             text-align: left;
+            word-wrap: break-word;
         }
         th {
             background-color: #f2f2f2;
@@ -282,7 +283,25 @@
             theme: 'striped',
             startY: 30,
             margin: { top: 30, right: 10, bottom: 10, left: 10 },
-            styles: { fontSize: 10 }
+            styles: { fontSize: 10, cellPadding: 3, overflow: 'linebreak' },
+            columnStyles: {
+                0: { cellWidth: 25 },
+                1: { cellWidth: 25 },
+                2: { cellWidth: 25 },
+                3: { cellWidth: 35 },
+                4: { cellWidth: 25 },
+                5: { cellWidth: 25 },
+                6: { cellWidth: 20 },
+                7: { cellWidth: 20 },
+                8: { cellWidth: 25 },
+                9: { cellWidth: 25 }
+            },
+            didDrawCell: function(data) {
+                if (data.column.index === -1 && data.row.section === 'body') {
+                    doc.setFillColor(200, 200, 255);
+                    doc.rect(data.cell.x, data.cell.y, data.cell.width, data.cell.height, 'F');
+                }
+            }
         });
 
         doc.save('MEDICINE_INFORMATION.pdf');
