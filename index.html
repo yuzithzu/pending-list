@@ -169,15 +169,15 @@
     });
 
     function addToTable() {
-        var name = document.getElementById("name").value;
+        var name = document.getElementById("name").value.toUpperCase();
         var glAmount = document.getElementById("glAmount").value;
         var glExpiration = document.getElementById("glExpiration").value;
-        var governmentAgency = document.getElementById("governmentAgency").value;
-        var medicine = document.getElementById("medicine").value;
-        var brandName = document.getElementById("brandName").value;
+        var governmentAgency = document.getElementById("governmentAgency").value.toUpperCase();
+        var medicine = document.getElementById("medicine").value.toUpperCase();
+        var brandName = document.getElementById("brandName").value.toUpperCase();
         var quantity = document.getElementById("quantity").value;
-        var quantityUnit = document.getElementById("quantityUnit").value;
-        var remark = document.getElementById("remark").value;
+        var quantityUnit = document.getElementById("quantityUnit").value.toUpperCase();
+        var remark = document.getElementById("remark").value.toUpperCase();
         let currentDate = new Date().toISOString().split('T')[0];
 
         let row = {
@@ -261,16 +261,16 @@
 
         medicines.forEach(entry => {
             rows.push([
-                entry.name, 
+                entry.name.toUpperCase(), 
                 formatNumber(entry.glAmount),
                 entry.glExpiration, 
                 entry.governmentAgency.replace(/_/g, ' ').toUpperCase(), 
-                entry.medicine, 
-                entry.brandName, 
+                entry.medicine.toUpperCase(), 
+                entry.brandName.toUpperCase(), 
                 entry.quantity, 
-                entry.quantityUnit, 
+                entry.quantityUnit.toUpperCase(), 
                 entry.dateInputted, 
-                entry.remark
+                entry.remark.toUpperCase()
             ]);
         });
 
