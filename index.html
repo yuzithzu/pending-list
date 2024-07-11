@@ -34,11 +34,14 @@
             border: 1px solid #ddd;
             padding: 8px;
             text-align: left;
+            word-wrap: break-word;
         }
         th {
             background-color: #007bff;
             color: white;
-            word-wrap: break-word;
+            font-size: 12px;
+            overflow: hidden;
+            white-space: nowrap;
         }
         .form-group {
             margin-bottom: 15px;
@@ -153,6 +156,10 @@
         <label for="contactNumber">CONTACT NUMBER:</label>
         <input type="tel" id="contactNumber" name="contactNumber">
     </div>
+    <div class="form-group">
+        <label for="remark">REMARK:</label>
+        <input type="text" id="remark" name="remark">
+    </div>
     <input type="button" value="ADD TO TABLE" onclick="addToTable()">
 </form>
 
@@ -199,6 +206,7 @@
         var quantity = document.getElementById("quantity").value;
         var quantityUnit = document.getElementById("quantityUnit").value;
         var contactNumber = document.getElementById("contactNumber").value;
+        var remark = document.getElementById("remark").value;
         let currentDate = new Date().toISOString().split('T')[0];
 
         let row = {
@@ -211,7 +219,7 @@
             quantity: quantity,
             quantityUnit: quantityUnit,
             dateInputted: currentDate,
-            remark: '',
+            remark: remark,
             contactNumber: contactNumber
         };
 
@@ -240,12 +248,12 @@
         var cell12 = newRow.insertCell(11);
 
         cell1.innerHTML = entry.name;
-        cell2.innerHTML = entry.glAmount;
+        cell2.innerHTML = formatNumber(entry.glAmount);
         cell3.innerHTML = entry.glExpiration;
-        cell4.innerHTML = entry.governmentAgency.replace(/_/g, ' ').toUpperCase();
+        cell4.innerHTML = entry.governmentAgency.replace(/_/g, ' ');
         cell5.innerHTML = entry.medicine;
         cell6.innerHTML = entry.brandName;
-        cell7.innerHTML = entry.quantity;
+        cell7.innerHTML = formatNumber(entry.quantity);
         cell8.innerHTML = entry.quantityUnit;
         cell9.innerHTML = entry.dateInputted;
         cell10.innerHTML = entry.remark;
@@ -289,19 +297,19 @@
             { header: 'REMARK', dataKey: 'remark' },
             { header: 'CONTACT NUMBER', dataKey: 'contactNumber' }
         ];
-        
+
         const rows = medicines.map(entry => ({
-            name: entry.name,
-            glAmount: entry.glAmount,
+            name: entry.name.toUpperCase(),
+            glAmount: formatNumber(entry.glAmount),
             glExpiration: entry.glExpiration,
             governmentAgency: entry.governmentAgency.replace(/_/g, ' ').toUpperCase(),
-            medicine: entry.medicine,
-            brandName: entry.brandName,
-            quantity: entry.quantity,
-            quantityUnit: entry.quantityUnit,
+            medicine: entry.medicine.toUpperCase(),
+            brandName: entry.brandName.toUpperCase(),
+            quantity: formatNumber(entry.quantity),
+            quantityUnit: entry.quantityUnit.toUpperCase(),
             dateInputted: entry.dateInputted,
-            remark: entry.remark,
-            contactNumber: entry.contactNumber
+            remark: entry.remark.toUpperCase(),
+            contactNumber: entry.contactNumber.toUpperCase()
         }));
 
         doc.setFontSize(18);
@@ -314,19 +322,19 @@
             headStyles: { fillColor: [0, 123, 255] },
             startY: 30,
             margin: { top: 30, right: 10, bottom: 10, left: 10 },
-            styles: { fontSize: 5, overflow: 'linebreak' },
+            styles: { fontSize: 6, overflow: 'linebreak' },
             columnStyles: {
-                name: { cellWidth: 'auto' },
-                glAmount: { cellWidth: 'auto' },
-                glExpiration: { cellWidth: 'auto' },
-                governmentAgency: { cellWidth: 'auto' },
-                medicine: { cellWidth: 'auto' },
-                brandName: { cellWidth: 'auto' },
-                quantity: { cellWidth: 'auto' },
-                quantityUnit: { cellWidth: 'auto' },
-                dateInputted: { cellWidth: 'auto' },
-                remark: { cellWidth: 'auto' },
-                contactNumber: { cellWidth: 'auto' }
+                name: { cellWidth: 'wrap' },
+                glAmount: { cellWidth: 'wrap' },
+                glExpiration: { cellWidth: 'wrap' },
+                governmentAgency: { cellWidth: 'wrap' },
+                medicine: { cellWidth: 'wrap' },
+                brandName: { cellWidth: 'wrap' },
+                quantity: { cellWidth: 'wrap' },
+                quantityUnit: { cellWidth: 'wrap' },
+                dateInputted: { cellWidth: 'wrap' },
+                remark: { cellWidth: 'wrap' },
+                contactNumber: { cellWidth: 'wrap' }
             }
         });
 
@@ -335,11 +343,11 @@
 
         let summary = {};
         medicines.forEach(entry => {
-            let key = `${entry.medicine} (${entry.brandName})`;
+            let key = `${entry.medicine.toUpperCase()} (${entry.brandName.toUpperCase()})`;
             if (!summary[key]) {
                 summary[key] = {
                     totalQuantity: 0,
-                    quantityUnit: entry.quantityUnit
+                    quantityUnit: entry.quantityUnit.toUpperCase()
                 };
             }
             summary[key].totalQuantity += parseInt(entry.quantity, 10);
@@ -353,7 +361,7 @@
 
         const summaryRows = Object.keys(summary).map(key => ({
             medicineBrand: key,
-            totalQuantity: summary[key].totalQuantity,
+            totalQuantity: formatNumber(summary[key].totalQuantity),
             quantityUnit: summary[key].quantityUnit
         }));
 
@@ -369,13 +377,17 @@
             margin: { top: 30, right: 10, bottom: 10, left: 10 },
             styles: { fontSize: 10, overflow: 'linebreak' },
             columnStyles: {
-                medicineBrand: { cellWidth: 'auto' },
-                totalQuantity: { cellWidth: 'auto' },
-                quantityUnit: { cellWidth: 'auto' }
+                medicineBrand: { cellWidth: 'wrap' },
+                totalQuantity: { cellWidth: 'wrap' },
+                quantityUnit: { cellWidth: 'wrap' }
             }
         });
 
         doc.save('MEDICINE_INFORMATION.pdf');
+    }
+
+    function formatNumber(number) {
+        return new Intl.NumberFormat().format(number);
     }
 </script>
 
