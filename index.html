@@ -1,6 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Medicine Information</title>
     <style>
         body {
@@ -34,9 +36,9 @@
             text-align: left;
         }
         th {
-            background-color: #007BFF;
+            background-color: #007bff;
             color: white;
-            text-align: center;
+            word-wrap: break-word;
         }
         .form-group {
             margin-bottom: 15px;
@@ -49,6 +51,7 @@
         input[type="text"],
         input[type="date"],
         input[type="number"],
+        input[type="tel"],
         select {
             width: calc(100% - 20px);
             padding: 8px;
@@ -65,12 +68,16 @@
             border: none;
             border-radius: 4px;
             cursor: pointer;
+            display: block;
+            width: 100%;
+            box-sizing: border-box;
         }
         button:hover, input[type="button"]:hover {
             background-color: #45a049;
         }
         .delete-btn {
             background-color: #f44336;
+            color: white;
         }
         .delete-btn:hover {
             background-color: #e53935;
@@ -78,6 +85,18 @@
         .buttons {
             display: flex;
             justify-content: center;
+        }
+        @media (min-width: 600px) {
+            input[type="text"],
+            input[type="date"],
+            input[type="number"],
+            input[type="tel"],
+            select {
+                width: 100%;
+            }
+            button, input[type="button"] {
+                width: auto;
+            }
         }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -131,8 +150,8 @@
         </select>
     </div>
     <div class="form-group">
-        <label for="remark">REMARK:</label>
-        <input type="text" id="remark" name="remark">
+        <label for="contactNumber">CONTACT NUMBER:</label>
+        <input type="tel" id="contactNumber" name="contactNumber">
     </div>
     <input type="button" value="ADD TO TABLE" onclick="addToTable()">
 </form>
@@ -155,6 +174,7 @@
             <th>QUANTITY UNIT</th>
             <th>DATE INPUTTED</th>
             <th>REMARK</th>
+            <th>CONTACT NUMBER</th>
             <th>ACTION</th>
         </tr>
     </thead>
@@ -178,7 +198,7 @@
         var brandName = document.getElementById("brandName").value;
         var quantity = document.getElementById("quantity").value;
         var quantityUnit = document.getElementById("quantityUnit").value;
-        var remark = document.getElementById("remark").value;
+        var contactNumber = document.getElementById("contactNumber").value;
         let currentDate = new Date().toISOString().split('T')[0];
 
         let row = {
@@ -191,7 +211,8 @@
             quantity: quantity,
             quantityUnit: quantityUnit,
             dateInputted: currentDate,
-            remark: remark
+            remark: '',
+            contactNumber: contactNumber
         };
 
         medicines.push(row);
@@ -216,6 +237,7 @@
         var cell9 = newRow.insertCell(8);
         var cell10 = newRow.insertCell(9);
         var cell11 = newRow.insertCell(10);
+        var cell12 = newRow.insertCell(11);
 
         cell1.innerHTML = entry.name;
         cell2.innerHTML = entry.glAmount;
@@ -227,7 +249,8 @@
         cell8.innerHTML = entry.quantityUnit;
         cell9.innerHTML = entry.dateInputted;
         cell10.innerHTML = entry.remark;
-        cell11.innerHTML = '<button class="delete-btn" onclick="deleteRow(this)">DELETE</button>';
+        cell11.innerHTML = entry.contactNumber;
+        cell12.innerHTML = '<button class="delete-btn" onclick="deleteRow(this)">DELETE</button>';
     }
 
     function deleteRow(button) {
@@ -253,74 +276,103 @@
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF('landscape');
 
-        const columns = ['NAME', 'GL AMOUNT', 'GL EXPIRATION', 'GOVERNMENT AGENCY', 'MEDICINE', 'BRAND NAME', 'QUANTITY', 'QUANTITY UNIT', 'DATE INPUTTED', 'REMARK'];
-        const rows = [];
-        const summary = {};
-
-        medicines.forEach(entry => {
-            const key = `${entry.medicine.toUpperCase()} (${entry.brandName.toUpperCase()})`;
-            if (!summary[key]) {
-                summary[key] = 0;
-            }
-            summary[key] += parseInt(entry.quantity);
-
-            rows.push([
-                entry.name.toUpperCase(),
-                entry.glAmount,
-                entry.glExpiration,
-                entry.governmentAgency.replace(/_/g, ' ').toUpperCase(),
-                entry.medicine.toUpperCase(),
-                entry.brandName.toUpperCase(),
-                entry.quantity,
-                entry.quantityUnit,
-                entry.dateInputted,
-                entry.remark
-            ]);
-        });
+        const columns = [
+            { header: 'NAME', dataKey: 'name' },
+            { header: 'GL AMOUNT', dataKey: 'glAmount' },
+            { header: 'GL EXPIRATION', dataKey: 'glExpiration' },
+            { header: 'GOVERNMENT AGENCY', dataKey: 'governmentAgency' },
+            { header: 'MEDICINE', dataKey: 'medicine' },
+            { header: 'BRAND NAME', dataKey: 'brandName' },
+            { header: 'QUANTITY', dataKey: 'quantity' },
+            { header: 'QUANTITY UNIT', dataKey: 'quantityUnit' },
+            { header: 'DATE INPUTTED', dataKey: 'dateInputted' },
+            { header: 'REMARK', dataKey: 'remark' },
+            { header: 'CONTACT NUMBER', dataKey: 'contactNumber' }
+        ];
+        
+        const rows = medicines.map(entry => ({
+            name: entry.name,
+            glAmount: entry.glAmount,
+            glExpiration: entry.glExpiration,
+            governmentAgency: entry.governmentAgency.replace(/_/g, ' ').toUpperCase(),
+            medicine: entry.medicine,
+            brandName: entry.brandName,
+            quantity: entry.quantity,
+            quantityUnit: entry.quantityUnit,
+            dateInputted: entry.dateInputted,
+            remark: entry.remark,
+            contactNumber: entry.contactNumber
+        }));
 
         doc.setFontSize(18);
         doc.text('MEDICINE INFORMATION', 14, 22);
 
         doc.autoTable({
-            head: [columns],
+            columns: columns,
             body: rows,
             theme: 'striped',
+            headStyles: { fillColor: [0, 123, 255] },
             startY: 30,
             margin: { top: 30, right: 10, bottom: 10, left: 10 },
-            styles: { fontSize: 10 },
-            headStyles: { fillColor: [0, 123, 255], halign: 'center' },
+            styles: { fontSize: 10, overflow: 'linebreak' },
             columnStyles: {
-                0: { cellWidth: 'auto' },
-                1: { cellWidth: 'auto' },
-                2: { cellWidth: 'auto' },
-                3: { cellWidth: 'auto' },
-                4: { cellWidth: 'auto' },
-                5: { cellWidth: 'auto' },
-                6: { cellWidth: 'auto' },
-                7: { cellWidth: 'auto' },
-                8: { cellWidth: 'auto' },
-                9: { cellWidth: 'auto' }
-            },
+                name: { cellWidth: 'auto' },
+                glAmount: { cellWidth: 'auto' },
+                glExpiration: { cellWidth: 'auto' },
+                governmentAgency: { cellWidth: 'auto' },
+                medicine: { cellWidth: 'auto' },
+                brandName: { cellWidth: 'auto' },
+                quantity: { cellWidth: 'auto' },
+                quantityUnit: { cellWidth: 'auto' },
+                dateInputted: { cellWidth: 'auto' },
+                remark: { cellWidth: 'auto' },
+                contactNumber: { cellWidth: 'auto' }
+            }
         });
 
-        const summaryRows = [];
-        for (const [key, value] of Object.entries(summary)) {
-            summaryRows.push([key, value]);
-        }
-
+        // Summary on a new page
         doc.addPage();
+
+        let summary = {};
+        medicines.forEach(entry => {
+            let key = `${entry.medicine} (${entry.brandName})`;
+            if (!summary[key]) {
+                summary[key] = {
+                    totalQuantity: 0,
+                    quantityUnit: entry.quantityUnit
+                };
+            }
+            summary[key].totalQuantity += parseInt(entry.quantity, 10);
+        });
+
+        const summaryColumns = [
+            { header: 'MEDICINE (BRAND)', dataKey: 'medicineBrand' },
+            { header: 'TOTAL QUANTITY', dataKey: 'totalQuantity' },
+            { header: 'QUANTITY UNIT', dataKey: 'quantityUnit' }
+        ];
+
+        const summaryRows = Object.keys(summary).map(key => ({
+            medicineBrand: key,
+            totalQuantity: summary[key].totalQuantity,
+            quantityUnit: summary[key].quantityUnit
+        }));
 
         doc.setFontSize(18);
         doc.text('SUMMARY', 14, 22);
 
         doc.autoTable({
-            head: [['MEDICINE (BRAND NAME)', 'TOTAL QUANTITY']],
+            columns: summaryColumns,
             body: summaryRows,
             theme: 'striped',
+            headStyles: { fillColor: [0, 123, 255] },
             startY: 30,
-            margin: { top: 10, right: 10, bottom: 10, left: 10 },
-            styles: { fontSize: 10 },
-            headStyles: { fillColor: [0, 123, 255] }
+            margin: { top: 30, right: 10, bottom: 10, left: 10 },
+            styles: { fontSize: 10, overflow: 'linebreak' },
+            columnStyles: {
+                medicineBrand: { cellWidth: 'auto' },
+                totalQuantity: { cellWidth: 'auto' },
+                quantityUnit: { cellWidth: 'auto' }
+            }
         });
 
         doc.save('MEDICINE_INFORMATION.pdf');
