@@ -247,16 +247,16 @@
         var cell11 = newRow.insertCell(10);
         var cell12 = newRow.insertCell(11);
 
-        cell1.innerHTML = entry.name;
+        cell1.innerHTML = entry.name.toUpperCase();
         cell2.innerHTML = formatNumber(entry.glAmount);
         cell3.innerHTML = entry.glExpiration;
-        cell4.innerHTML = entry.governmentAgency.replace(/_/g, ' ');
-        cell5.innerHTML = entry.medicine;
-        cell6.innerHTML = entry.brandName;
+        cell4.innerHTML = entry.governmentAgency.replace(/_/g, ' ').toUpperCase();
+        cell5.innerHTML = entry.medicine.toUpperCase();
+        cell6.innerHTML = entry.brandName.toUpperCase();
         cell7.innerHTML = formatNumber(entry.quantity);
-        cell8.innerHTML = entry.quantityUnit;
+        cell8.innerHTML = entry.quantityUnit.toUpperCase();
         cell9.innerHTML = entry.dateInputted;
-        cell10.innerHTML = entry.remark;
+        cell10.innerHTML = entry.remark.toUpperCase();
         cell11.innerHTML = entry.contactNumber;
         cell12.innerHTML = '<button class="delete-btn" onclick="deleteRow(this)">DELETE</button>';
     }
@@ -309,7 +309,7 @@
             quantityUnit: entry.quantityUnit.toUpperCase(),
             dateInputted: entry.dateInputted,
             remark: entry.remark.toUpperCase(),
-            contactNumber: entry.contactNumber.toUpperCase()
+            contactNumber: entry.contactNumber
         }));
 
         doc.setFontSize(18);
@@ -322,19 +322,19 @@
             headStyles: { fillColor: [0, 123, 255] },
             startY: 30,
             margin: { top: 30, right: 10, bottom: 10, left: 10 },
-            styles: { fontSize: 8, overflow: 'linebreak' },
+            styles: { fontSize: 6.5, overflow: 'linebreak', cellWidth: 'wrap' },
             columnStyles: {
-                name: { cellWidth: 'wrap' },
-                glAmount: { cellWidth: 'wrap' },
-                glExpiration: { cellWidth: 'wrap' },
-                governmentAgency: { cellWidth: 'wrap' },
-                medicine: { cellWidth: 'wrap' },
-                brandName: { cellWidth: 'wrap' },
-                quantity: { cellWidth: 'wrap' },
-                quantityUnit: { cellWidth: 'wrap' },
-                dateInputted: { cellWidth: 'wrap' },
-                remark: { cellWidth: 'wrap' },
-                contactNumber: { cellWidth: 'wrap' }
+                name: { cellWidth: 30 },
+                glAmount: { cellWidth: 25 },
+                glExpiration: { cellWidth: 30 },
+                governmentAgency: { cellWidth: 20 },
+                medicine: { cellWidth: 30 },
+                brandName: { cellWidth: 30 },
+                quantity: { cellWidth: 20 },
+                quantityUnit: { cellWidth: 20 },
+                dateInputted: { cellWidth: 30 },
+                remark: { cellWidth: 20 },
+                contactNumber: { cellWidth: 25 }
             }
         });
 
@@ -375,11 +375,11 @@
             headStyles: { fillColor: [0, 123, 255] },
             startY: 30,
             margin: { top: 30, right: 10, bottom: 10, left: 10 },
-            styles: { fontSize: 10, overflow: 'linebreak' },
+            styles: { fontSize: 10, overflow: 'linebreak', cellWidth: 'wrap' },
             columnStyles: {
-                medicineBrand: { cellWidth: 'wrap' },
-                totalQuantity: { cellWidth: 'wrap' },
-                quantityUnit: { cellWidth: 'wrap' }
+                medicineBrand: { cellWidth: 60 },
+                totalQuantity: { cellWidth: 40 },
+                quantityUnit: { cellWidth: 40 }
             }
         });
 
